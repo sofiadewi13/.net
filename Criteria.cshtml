@@ -1,0 +1,160 @@
+﻿
+@{
+    ViewData["Title"] = "Criteria";
+}
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    function loadCriteria() {
+        var url = "/api/criteria/getallcriteria";
+        $("#rowCriteria").empty();
+        $.getJSON(url, function (jsondata) {
+            $(jsondata).each(function (key, val) {
+                var updateBtn = "<input type='button' value='Update' class='btn btn-primary' onclick= showDetails('" + val.criteriaID + "') />";
+                var deleteBtn = "<input type='button' value='Delete' class='btn btn-danger' onclick= deleteEmployee('" + val.criteriaID + "') />";
+                var tableCriteria = "<tr>";
+                tableCriteria += "<td>" + val.departmentName + "</td>";
+                tableCriteria += "<td>" + val.criteriaName + "</td>";
+                tableCriteria += "<td>" + val.weight + "</td>";
+                tableCriteria += "<td>" + updateBtn + " " + deleteBtn + "</td>";
+                tableCriteria += "</tr>";
+                $("#rowCriteria").append(tableCriteria);
+            });
+        });
+    };
+
+    function deptname() {
+        let dropdown = $('#deptname-dropdown');
+        dropdown.empty();
+        dropdown.append('<option selected="true" disabled> Department Name</option>');
+        dropdown.prop('selectedIndex', 0);
+        const url = '/api/department/getalldepartment';
+        $.getJSON(url, function (data) {
+            $.each(data, function (key, entry) {
+                dropdown.append($('<option></option>').attr('value', entry.id).text(entry.departmentName));
+            })
+        });
+    }
+    function addfield() {
+        var max_fields = 10; //maximum input boxes allowed
+        var wrapper = $(".input_fields_wrap"); //Fields wrapper
+        var add_button = $("#add_field_button"); //Add button ID
+
+        var x = 1; //initlal text box count
+        $(add_button).click(function (e) { //on add input button click
+            e.preventDefault();
+            if (x < max_fields) { //max input box allowed
+                x++; //text box increment
+                $(wrapper).append('<div class="form-group row"><div class="col-xs-10"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text">Criteria and Weight</span></div><input type="text" aria-label="Criteria" name="criteria[]" class="form-control"><input type="text" aria-label="Weight" name="weight[]" class="form-control"></div><a href="#" class="remove_field">Remove</a></div></div>'); //add input box
+            }
+        });
+        $(wrapper).on("click", ".remove_field", function (e) { //user click on remove text
+            e.preventDefault(); $(this).parent('div').remove(); x--;
+        })
+    }
+
+    function getdata() {
+        var dept = $("#deptname-dropdown").val();
+        //var values = $("input[name='criteria\\[\\]']")
+        //    .map(function () { return $(this).val(); }).get();
+        //var weight = $("input[name='weight\\[\\]']")
+        //    .map(function () { return $(this).val(); }).get();
+
+        var myArray = [];
+        $('input[name=task]').each(function () {
+            myArray.push({
+                //departmentName: dept,
+                criteriaName: $(this).val(),  
+            });
+        });
+
+        //var ItemArray = [];
+        //ItemArray.push({
+        //    departmentID: dept,
+        //    criteriaName: []
+        //});
+
+        //$("input[name=criteria]").each(function () {
+        //    ItemArray[0].criteriaName.push($(this).val());
+        //});
+
+        
+
+        console.log(myArray);
+        //var taskArray = new Array();
+        //$("input[name=task]").each(function () {
+        //    taskArray.push($(this).val());
+        //});
+       
+
+    }
+
+    $(document).ready(function () {
+        loadCriteria();
+        deptname();
+        addfield();
+        //getdata();
+        $("#btnSubmit").click(getdata);
+
+    });
+
+</script>
+<h1>Criteria</h1>
+
+    <form>
+        <div class="input_fields_wrap">
+            <div class="form-group row">
+                <div class="col-xs-30">
+                    <input type="hidden" class="form-control" id="id">
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <div class="col-xs-10">
+                    <label for="deptname-dropdown">Department Name</label>
+                    <br />
+                    <select id="deptname-dropdown" name="deptname" class="form-control" style="width:110%">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xs-10">
+                    <label for="criteria">Criteria</label>
+                    <button id="add_field_button" class="btn btn-primary" style="margin-bottom:5px;margin-left:450px;">Add</button>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Criteria and Weight</span>
+                        </div>
+                        <input type="text" aria-label="Criteria" name="criteria[]" class="form-control">
+                        <input type="text" aria-label="Weight" name="weight[]" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xs-10">
+                    @*<button type="button" id="btnUpdate" class="btn btn-primary">Submit</button>*@
+                    <button type="button" id="btnSubmit" class="btn btn-primary">Submit</button>
+                    <button type="button" id="btnCancel" class="btn btn-danger">Clear</button>
+                </div>
+            </div>
+        </div>
+    </form> 
+
+
+    <table style="border:1px solid black;" class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Department Name</th>
+                <th scope="col">Criteria Name</th>
+                <th scope="col">Weight</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody id="rowCriteria">
+        </tbody>
+    </table>
+
+
+    
+
